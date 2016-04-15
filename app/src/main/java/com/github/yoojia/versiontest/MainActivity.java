@@ -11,7 +11,10 @@ import com.github.yoojia.anyversion.NotifyStyle;
 import com.github.yoojia.anyversion.Version;
 import com.github.yoojia.anyversion.VersionReceiver;
 import com.github.yoojia.versiontest.api.param.CheckUpdateParam;
+import com.github.yoojia.versiontest.model.MyModel;
 import com.github.yoojia.versiontest.model.UpdateModel;
+
+import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -69,6 +72,30 @@ public class MainActivity extends Activity implements ILoading{
             @Override
             public void onClick(View v) {
              update(NotifyStyle.Dialog);
+            }
+        });
+
+        findViewById(R.id.test_toSortedList).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyModel.getInstance().getTop(2)
+                        .compose(RxUtils.<List<MyModel.MyData>>showLoading(MainActivity.this))
+                        .subscribe(new Subscriber<List<MyModel.MyData>>() {
+                            @Override
+                            public void onCompleted() {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onNext(List<MyModel.MyData> list) {
+                                Tools.toast(list.toString());
+                            }
+                        });
             }
         });
     }

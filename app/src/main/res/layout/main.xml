@@ -22,4 +22,10 @@
         android:id="@+id/dialog"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="test_toSortedList"
+        android:id="@+id/test_toSortedList"/>
+
 </LinearLayout>
