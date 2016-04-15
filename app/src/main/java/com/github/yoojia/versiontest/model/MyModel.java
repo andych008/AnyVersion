@@ -163,4 +163,94 @@ public class MyModel {
                 }).toList();
 
     }
+
+
+    public Observable<String> test_onErrorReturn() {
+
+        final int code = 2;
+
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                Log.i("RxThread", "create_db:" + ", run In :" + Thread.currentThread().getName());
+                subscriber.onNext(getCodeFromDb(code));
+                subscriber.onCompleted();
+            }
+        }).onErrorReturn(new Func1<Throwable, String>() {
+            @Override
+            public String call(Throwable throwable) {
+                Log.i("RxThread", "create_net:" + ", run In :" + Thread.currentThread().getName());
+                return getCodeFromNet(code);
+            }
+        }).subscribeOn(Schedulers.io());
+
+    }
+
+
+    //希望返回：[1A, 2B, 3A]。但实际返回[1A, 2B, 3B]。怎么搞？
+    public Observable<List<String>> test_onErrorResumeNext() {
+        final List<Integer> codeList = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            codeList.add(i);
+        }
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                Log.i("RxThread", "create_db:" + ", run In :" + Thread.currentThread().getName());
+                int i = 0;
+                try {
+                    for (; i < codeList.size(); i++) {
+                        subscriber.onNext(getCodeFromDb(codeList.get(i)));
+                    }
+                } catch (Exception e) {
+                    codeList.removeAll(codeList.subList(0, i));
+                }
+                subscriber.onCompleted();
+            }
+        }).onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
+            @Override
+            public Observable<? extends String> call(Throwable throwable) {
+                return Observable.create(new Observable.OnSubscribe<String>() {
+                    @Override
+                    public void call(Subscriber<? super String> subscriber) {
+                        Log.i("RxThread", "create_net:" + ", run In :" + Thread.currentThread().getName());
+                        for (Integer code : codeList) {
+                            subscriber.onNext(getCodeFromNet(code));
+                        }
+                        subscriber.onCompleted();
+                    }
+                });
+            }
+        }).toList().subscribeOn(Schedulers.io());
+
+    }
+
+    private String getCodeFromDb(int code) {
+        if (code==1 || code==3) {
+            return code+"A";
+        }
+        throw new RetryException("db not found", code);
+    }
+
+    private String getCodeFromNet(int code) {
+        if (code<100) {
+            return code+"B";
+        }
+        throw new RuntimeException("net not found");
+    }
+
+    static class RetryException extends RuntimeException {
+        int code;
+
+        public RetryException(String detailMessage, int code) {
+            super(detailMessage);
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
+
+
 }

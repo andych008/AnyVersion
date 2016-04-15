@@ -21,6 +21,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import timber.log.Timber;
 
 /**
  * Created by Yoojia.Chen
@@ -78,24 +79,9 @@ public class MainActivity extends Activity implements ILoading{
         findViewById(R.id.test_toSortedList).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyModel.getInstance().getTop(2)
-                        .compose(RxUtils.<List<MyModel.MyData>>showLoading(MainActivity.this))
-                        .subscribe(new Subscriber<List<MyModel.MyData>>() {
-                            @Override
-                            public void onCompleted() {
-
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-
-                            @Override
-                            public void onNext(List<MyModel.MyData> list) {
-                                Tools.toast(list.toString());
-                            }
-                        });
+//                getTop();
+//                test_onErrorReturn();
+                test_onErrorResumeNext();
             }
         });
     }
@@ -124,6 +110,61 @@ public class MainActivity extends Activity implements ILoading{
                         anyVersion.check(version, style);
                     }
                 });
+    }
+
+    void getTop(){
+        MyModel.getInstance().getTop(2)
+                .compose(RxUtils.<List<MyModel.MyData>>showLoading(MainActivity.this))
+                .subscribe(new Subscriber<List<MyModel.MyData>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<MyModel.MyData> list) {
+                        Tools.toast(list.toString());
+                    }
+                });
+    }
+
+    void test_onErrorReturn() {
+        Timber.i("ssss");
+        MyModel.getInstance().test_onErrorReturn()
+                .compose(RxUtils.<String>showLoading(MainActivity.this))
+                .subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Timber.i(s);
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Tools.showConfirmError(MainActivity.this, throwable);
+            }
+        });
+    }
+
+    void test_onErrorResumeNext() {
+        Timber.i("ssss");
+        MyModel.getInstance().test_onErrorResumeNext()
+                .compose(RxUtils.<List<String>>showLoading(MainActivity.this))
+                .subscribe(new Action1<List<String>>() {
+            @Override
+            public void call(List<String> s) {
+                Timber.i(s.toString());
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Tools.showConfirmError(MainActivity.this, throwable);
+            }
+        });
     }
 
     @Override

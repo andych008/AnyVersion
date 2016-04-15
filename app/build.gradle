@@ -34,6 +34,8 @@ dependencies {
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxBinding
 
+    compile rootProject.ext.timber
+
 //    compile 'com.github.yoojia:anyversion:1.0@aar'
     compile project(':lib')
 }
