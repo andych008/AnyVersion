@@ -225,6 +225,27 @@ public class MyModel {
 
     }
 
+    //从list1从找出包含list2的值。希望返回：[2, 6]。怎么搞？
+    public Observable<List<Integer>> test_filter() {
+        final List<Integer> list1 = new ArrayList<>();
+        list1.add(1);
+        list1.add(2);
+        list1.add(4);
+        list1.add(6);
+        final List<Integer> list2 = new ArrayList<>();
+        list2.add(2);
+        list2.add(6);
+        list2.add(8);
+
+        return Observable.from(list2).filter(new Func1<Integer, Boolean>() {
+            @Override
+            public Boolean call(Integer item) {
+                return list1.contains(item);
+            }
+        }).toList();
+
+    }
+
     private String getCodeFromDb(int code) {
         if (code==1 || code==3) {
             return code+"A";

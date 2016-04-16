@@ -81,7 +81,8 @@ public class MainActivity extends Activity implements ILoading{
             public void onClick(View v) {
 //                getTop();
 //                test_onErrorReturn();
-                test_onErrorResumeNext();
+//                test_onErrorResumeNext();
+                test_filter();
             }
         });
     }
@@ -134,7 +135,6 @@ public class MainActivity extends Activity implements ILoading{
     }
 
     void test_onErrorReturn() {
-        Timber.i("ssss");
         MyModel.getInstance().test_onErrorReturn()
                 .compose(RxUtils.<String>showLoading(MainActivity.this))
                 .subscribe(new Action1<String>() {
@@ -151,12 +151,27 @@ public class MainActivity extends Activity implements ILoading{
     }
 
     void test_onErrorResumeNext() {
-        Timber.i("ssss");
         MyModel.getInstance().test_onErrorResumeNext()
                 .compose(RxUtils.<List<String>>showLoading(MainActivity.this))
                 .subscribe(new Action1<List<String>>() {
             @Override
             public void call(List<String> s) {
+                Timber.i(s.toString());
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Tools.showConfirmError(MainActivity.this, throwable);
+            }
+        });
+    }
+
+    void test_filter() {
+        MyModel.getInstance().test_filter()
+                .compose(RxUtils.<List<Integer>>showLoading(MainActivity.this))
+                .subscribe(new Action1<List<Integer>>() {
+            @Override
+            public void call(List<Integer> s) {
                 Timber.i(s.toString());
             }
         }, new Action1<Throwable>() {
